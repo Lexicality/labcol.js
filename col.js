@@ -1,6 +1,6 @@
 function ColJs() {
     this.LabtoRGB = function(l, a, b) {
-        return XYZtoRGB(LabtoXYZ(l, a, b).X, LabtoXYZ(l, a, b).Y, LabtoXYZ(l, a, b).Z);
+        return this.XYZtoRGB(this.LabtoXYZ(l, a, b).X, this.LabtoXYZ(l, a, b).Y, this.LabtoXYZ(l, a, b).Z);
     };
 
     this.LabtoXYZ = function(l, a, b) {
@@ -25,7 +25,7 @@ function ColJs() {
 
         for (var i = 0; i < 3; i++) {
             Clinear[i] = Math.floor(((Clinear[i] <= 0.0031308) ? 12.92 * Clinear[i] : (
-                1 + 0.055) * Math.Pow(Clinear[i], (1.0 / 2.4)) - 0.055) * 255);
+                1 + 0.055) * Math.pow(Clinear[i], (1.0 / 2.4)) - 0.055) * 255);
         }
         return {
             r: Clinear[0],
@@ -35,7 +35,7 @@ function ColJs() {
     };
 
     this.RGBtoLab = function(r, g, b) {
-        return XYZtoLab(RGBtoXYZ(r, g, b));
+        return this.XYZtoLab(this.RGBtoXYZ(r, g, b));
     }
 
     this.RGBtoXYZ = function(red, green, blue) {
@@ -44,9 +44,9 @@ function ColJs() {
         var bLinear = blue / 255.0;
 
         // convert to a sRGB form
-        r = (rLinear > 0.04045) ? Math.Pow((rLinear + 0.055) / (1 + 0.055), 2.2) : (rLinear / 12.92);
-        g = (gLinear > 0.04045) ? Math.Pow((gLinear + 0.055) / (1 + 0.055), 2.2) : (gLinear / 12.92);
-        b = (bLinear > 0.04045) ? Math.Pow((bLinear + 0.055) / (1 + 0.055), 2.2) : (bLinear / 12.92);
+        r = (rLinear > 0.04045) ? Math.pow((rLinear + 0.055) / (1 + 0.055), 2.2) : (rLinear / 12.92);
+        g = (gLinear > 0.04045) ? Math.pow((gLinear + 0.055) / (1 + 0.055), 2.2) : (gLinear / 12.92);
+        b = (bLinear > 0.04045) ? Math.pow((bLinear + 0.055) / (1 + 0.055), 2.2) : (bLinear / 12.92);
 
         return {
             x: (r * 0.4124 + g * 0.3576 + b * 0.1805),
@@ -56,7 +56,7 @@ function ColJs() {
     }
 
     this.Fxyz = function(t) {
-        return ((t > 0.008856) ? Math.Pow(t, (1.0 / 3.0)) : (7.787 * t + 16.0 / 116.0));
+        return ((t > 0.008856) ? Math.pow(t, (1.0 / 3.0)) : (7.787 * t + 16.0 / 116.0));
     }
 
     this.XYZtoLab = function(input) {
@@ -69,9 +69,9 @@ function ColJs() {
             a: 0,
             b: 0
         };
-        lab.l = 116.0 * Fxyz(y / 1.0) - 16;
-        lab.a = 500.0 * (Fxyz(x / 0.9505) - Fxyz(y / 1.0));
-        lab.b = 200.0 * (Fxyz(y / 1.0) - Fxyz(z / 1.0890));
+        lab.l = 116.0 * this.Fxyz(y / 1.0) - 16;
+        lab.a = 500.0 * (this.Fxyz(x / 0.9505) - this.Fxyz(y / 1.0));
+        lab.b = 200.0 * (this.Fxyz(y / 1.0) - this.Fxyz(z / 1.0890));
 
         return lab;
     }
