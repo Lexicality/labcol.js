@@ -74,22 +74,7 @@ function ColJs() {
         lab.b = 200.0 * (Fxyz(y / 1.0) - Fxyz(z / 1.0890));
 
         return lab;
-        // return XYZtoLab(RGBtoXYZ(r, g, b));
     }
 
-    // public static CIELab XYZtoLab(CIEXYZ input)
-    // {
-    //     double x, y, z;
-    //     x = input.X;
-    //     y = input.Y;
-    //     z = input.Z;
-
-    //     CIELab lab = CIELab.Empty;
-    //     lab.L = 116.0 * Fxyz(y / CIEXYZ.D65.Y) - 16;
-    //     lab.A = 500.0 * (Fxyz(x / CIEXYZ.D65.X) - Fxyz(y / CIEXYZ.D65.Y));
-    //     lab.B = 200.0 * (Fxyz(y / CIEXYZ.D65.Y) - Fxyz(z / CIEXYZ.D65.Z));
-
-    //     return lab;
-    // }
     var that = this;
 }
