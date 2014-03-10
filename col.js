@@ -1,9 +1,36 @@
-function labcol() {
-    this.LabtoRGB = function(l, a, b) {
-        return this.XYZtoRGB(this.LabtoXYZ(l, a, b).x, this.LabtoXYZ(l, a, b).y, this.LabtoXYZ(l, a, b).z);
-    };
+(function(root) {
+    'use strict';
 
-    this.LabtoXYZ = function(l, a, b) {
+    /** @constructor */
+    function labcol() {}
+
+    /** @typedef {{r: number, g: number, b: number}} */
+    labcol.RGB;
+    /** @typedef {{l: number, a: number, b: number}} */
+    labcol.LAB;
+    /** @typedef {{x: number, y: number, z: number}} */
+    labcol.XYZ;
+
+    /**
+     * Converts a colour from the Lab colourspace to RGB
+     * @param {number} l
+     * @param {number} a
+     * @param {number} b
+     * @return {labcol.RGB}
+     */
+    function LabtoRGB(l, a, b) {
+        return XYZtoRGB(LabtoXYZ(l, a, b));
+    }
+    labcol.prototype.LabtoRGB = labcol.LabtoRGB = LabtoRGB;
+
+    /**
+     * Converts a colour from the Lab colourspace to CIE XYZ coordinates
+     * @param {number} l
+     * @param {number} a
+     * @param {number} b
+     * @return {labcol.XYZ}
+     */
+    function LabtoXYZ(l, a, b) {
         var delta = 6.0 / 29.0;
 
         var fy = (l + 16) / 116.0;
@@ -14,9 +41,19 @@ function labcol() {
             y: (fy > delta) ? 1 * (fy * fy * fy) : (fy - 16.0 / 116.0) * 3 * (delta * delta) * 1,
             z: (fz > delta) ? 1.0890 * (fz * fz * fz) : (fz - 16.0 / 116.0) * 3 * (delta * delta) * 1.0890
         };
-    };
+    }
+    labcol.prototype.LabtoXYZ = labcol.LabtoXYZ = LabtoXYZ;
 
-    this.XYZtoRGB = function(x, y, z) {
+
+    /**
+     * Converts a colour from CIE XYZ coordinates to RGB
+     * @param {labcol.XYZ} input
+     * @return {labcol.RGB}
+     */
+    function XYZtoRGB(input) {
+        var x = input.x;
+        var y = input.y;
+        var z = input.z;
         Clinear = [0, 0, 0];
 
         Clinear[0] = x * 3.2410 - y * 1.5374 - z * 0.4986; // red
@@ -32,13 +69,30 @@ function labcol() {
             g: Clinear[1],
             b: Clinear[2]
         }
-    };
-
-    this.RGBtoLab = function(r, g, b) {
-        return this.XYZtoLab(this.RGBtoXYZ(r, g, b));
     }
+    labcol.prototype.XYZtoRGB = labcol.XYZtoRGB = XYZtoRGB;
 
-    this.RGBtoXYZ = function(red, green, blue) {
+
+    /**
+     * Converts a colour from RGB to the Lab colourspace
+     * @param {number} r
+     * @param {number} g
+     * @param {number} b
+     * @return {labcol.LAB}
+     */
+    function RGBtoLab(r, g, b) {
+        return XYZtoLab(RGBtoXYZ(r, g, b));
+    }
+    labcol.prototype.RGBtoLab = labcol.RGBtoLab = RGBtoLab;
+
+    /**
+     * Converts a colour from RGB to CIE XYZ coordinates
+     * @param {number} red
+     * @param {number} green
+     * @param {number} blue
+     * @return {labcol.XYZ}
+     */
+    function RGBtoXYZ(red, green, blue) {
         var rLinear = red / 255.0;
         var gLinear = green / 255.0;
         var bLinear = blue / 255.0;
@@ -54,12 +108,25 @@ function labcol() {
             z: (r * 0.0193 + g * 0.1192 + b * 0.9505)
         }
     }
+    labcol.prototype.RGBtoXYZ = labcol.RGBtoXYZ = RGBtoXYZ;
 
-    this.Fxyz = function(t) {
+    /**
+     * TODO: ???
+     * @private
+     * @param {number} t ??
+     * @return {number} ???
+     */
+    function Fxyz(t) {
         return ((t > 0.008856) ? Math.pow(t, (1.0 / 3.0)) : (7.787 * t + 16.0 / 116.0));
     }
 
-    this.XYZtoLab = function(input) {
+
+    /**
+     * Converts a colour from CIE XYZ coordinates to the Lab colourspace
+     * @param {labcol.XYZ} input
+     * @return {labcol.LAB}
+     */
+    function XYZtoLab(input) {
         x = input.x;
         y = input.y;
         z = input.z;
@@ -69,12 +136,22 @@ function labcol() {
             a: 0,
             b: 0
         };
-        lab.l = 116.0 * this.Fxyz(y / 1.0) - 16;
-        lab.a = 500.0 * (this.Fxyz(x / 0.9505) - this.Fxyz(y / 1.0));
-        lab.b = 200.0 * (this.Fxyz(y / 1.0) - this.Fxyz(z / 1.0890));
+        lab.l = 116.0 * Fxyz(y / 1.0) - 16;
+        lab.a = 500.0 * (Fxyz(x / 0.9505) - Fxyz(y / 1.0));
+        lab.b = 200.0 * (Fxyz(y / 1.0) - Fxyz(z / 1.0890));
 
         return lab;
     }
+    labcol.prototype.XYZtoLab = labcol.XYZtoLab = XYZtoLab;
 
-    var that = this;
-}
+    // Lib Output
+    if (typeof module !== 'undefined') {
+        module['exports'] = labcol;
+    } else if (typeof define === 'function' && define['amd']) {
+        define(function() {
+            return labcol;
+        });
+    } else {
+        root['labcol'] = labcol;
+    }
+})(this);
