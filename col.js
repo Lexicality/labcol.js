@@ -58,7 +58,7 @@
         return {
             r: Math.floor(_sRGBtoRGB(r) * 255),
             g: Math.floor(_sRGBtoRGB(g) * 255),
-            b: Math.floor(_sRGBtoRGB(b) * 255),
+            b: Math.floor(_sRGBtoRGB(b) * 255)
         };
     };
     labcol.prototype.LabtoRGB = labcol.LabtoRGB;
@@ -118,7 +118,7 @@
         return {
             l: 116.0 * y - 16,
             a: 500.0 * (x - y),
-            b: 200.0 * (y - z),
+            b: 200.0 * (y - z)
         };
     };
     labcol.prototype.RGBtoLab = labcol.RGBtoLab;
