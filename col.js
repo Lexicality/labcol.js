@@ -83,20 +83,9 @@
     }
     labcol.prototype.XYZtoRGB = labcol.XYZtoRGB = XYZtoRGB;
 
+    // RGB -> LAB
 
-    /**
-     * Converts a colour from RGB to the Lab colourspace
-     * @param {number} r
-     * @param {number} g
-     * @param {number} b
-     * @return {labcol.LAB}
-     */
-    function RGBtoLab(r, g, b) {
-        return XYZtoLab(RGBtoXYZ(r, g, b));
-    }
-    labcol.prototype.RGBtoLab = labcol.RGBtoLab = RGBtoLab;
-
-    function RGBtosRGB(linear) {
+    function _RGBtosRGB(linear) {
         if (linear > 0.04045) {
             return Math.pow((linear + 0.055) / (1 + 0.055), 2.4);
         } else {
@@ -105,34 +94,11 @@
     }
 
     /**
-     * Converts a colour from RGB to CIE XYZ coordinates
-     * @param {number} red
-     * @param {number} green
-     * @param {number} blue
-     * @return {labcol.XYZ}
-     */
-    function RGBtoXYZ(red, green, blue) {
-
-        // convert to a sRGB form
-        var r = RGBtosRGB(+red / 255.0),
-            g = RGBtosRGB(+green / 255.0),
-            b = RGBtosRGB(+blue / 255.0);
-
-        return {
-            x: r * 0.4124 + g * 0.3576 + b * 0.1805,
-            y: r * 0.2126 + g * 0.7152 + b * 0.0722,
-            z: r * 0.0193 + g * 0.1192 + b * 0.9505,
-        };
-    }
-    labcol.prototype.RGBtoXYZ = labcol.RGBtoXYZ = RGBtoXYZ;
-
-    /**
-     * TODO: ???
      * @private
      * @param {number} t ??
      * @return {number} ???
      */
-    function Fxyz(t) {
+    function fxyz(t) {
         if (t > 0.008856) {
             return Math.pow(t, 1.0 / 3.0);
         } else {
@@ -140,24 +106,36 @@
         }
     }
 
-
     /**
-     * Converts a colour from CIE XYZ coordinates to the Lab colourspace
-     * @param {labcol.XYZ} input
+     * Converts a colour from RGB to the Lab colourspace
+     * @param {number} r
+     * @param {number} g
+     * @param {number} b
      * @return {labcol.LAB}
      */
-    function XYZtoLab(input) {
-        var x = Fxyz(+input.x / 0.9505),
-            y = Fxyz(+input.y),
-            z = Fxyz(+input.z / 1.0890);
+    labcol.RGBtoLab = function(r, g, b) {
+        var x, y, z;
+
+        // convert to a sRGB form
+        r = +_RGBtosRGB(+r / 255.0);
+        g = +_RGBtosRGB(+g / 255.0);
+        b = +_RGBtosRGB(+b / 255.0);
+
+        x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+        y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+        z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+
+        x = +fxyz(x / 0.9505);
+        y = +fxyz(y);
+        z = +fxyz(z / 1.0890);
 
         return {
             l: 116.0 * y - 16,
             a: 500.0 * (x - y),
             b: 200.0 * (y - z),
         };
-    }
-    labcol.prototype.XYZtoLab = labcol.XYZtoLab = XYZtoLab;
+    };
+    labcol.prototype.RGBtoLab = labcol.RGBtoLab;
 
     // Lib Output
     if (typeof module !== 'undefined') {
