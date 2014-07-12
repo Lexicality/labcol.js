@@ -23,6 +23,14 @@
     }
     labcol.prototype.LabtoRGB = labcol.LabtoRGB = LabtoRGB;
 
+    function LabtoXYZ_(a, delta) {
+        if (a > delta) {
+            return a * a * a;
+        } else {
+            return (a - 16.0 / 116.0) * 3 * (delta * delta);
+        }
+    }
+
     /**
      * Converts a colour from the Lab colourspace to CIE XYZ coordinates
      * @param {number} l
@@ -37,12 +45,20 @@
         var fx = fy + (a / 500.0);
         var fz = fy - (b / 200.0);
         return {
-            x: (fx > delta) ? 0.9505 * (fx * fx * fx) : (fx - 16.0 / 116.0) * 3 * (delta * delta) * 0.9505,
-            y: (fy > delta) ? 1 * (fy * fy * fy) : (fy - 16.0 / 116.0) * 3 * (delta * delta) * 1,
-            z: (fz > delta) ? 1.0890 * (fz * fz * fz) : (fz - 16.0 / 116.0) * 3 * (delta * delta) * 1.0890
+            x: 0.9505 * LabtoXYZ_(fx, delta),
+            y: 1.0000 * LabtoXYZ_(fy, delta),
+            z: 1.0890 * LabtoXYZ_(fz, delta),
         };
     }
     labcol.prototype.LabtoXYZ = labcol.LabtoXYZ = LabtoXYZ;
+
+    function XYZtoRGB_(i) {
+        if (i <= 0.0031308) {
+            return 12.92 * i;
+        } else {
+            return (1 + 0.055) * Math.pow(i, (1.0 / 2.4)) - 0.055;
+        }
+    }
 
 
     /**
@@ -51,18 +67,17 @@
      * @return {labcol.RGB}
      */
     function XYZtoRGB(input) {
-        var x = input.x;
-        var y = input.y;
-        var z = input.z;
+        var x = +input.x;
+        var y = +input.y;
+        var z = +input.z;
         Clinear = [0, 0, 0];
 
-        Clinear[0] = x * 3.2410 - y * 1.5374 - z * 0.4986; // red
+        Clinear[0] = +x * 3.2410 - y * 1.5374 - z * 0.4986; // red
         Clinear[1] = -x * 0.9692 + y * 1.8760 - z * 0.0416; // green
-        Clinear[2] = x * 0.0556 - y * 0.2040 + z * 1.0570; // blue
+        Clinear[2] = +x * 0.0556 - y * 0.2040 + z * 1.0570; // blue
 
         for (var i = 0; i < 3; i++) {
-            Clinear[i] = Math.floor(((Clinear[i] <= 0.0031308) ? 12.92 * Clinear[i] : (
-                1 + 0.055) * Math.pow(Clinear[i], (1.0 / 2.4)) - 0.055) * 255);
+            Clinear[i] = Math.floor(XYZtoRGB_(Clinear[i]) * 255);
         }
         return {
             r: Clinear[0],
@@ -85,6 +100,14 @@
     }
     labcol.prototype.RGBtoLab = labcol.RGBtoLab = RGBtoLab;
 
+    function RGBtosRGB(linear) {
+        if (linear > 0.04045) {
+            return Math.pow((linear + 0.055) / (1 + 0.055), 2.2);
+        } else {
+            return linear / 12.92;
+        }
+    }
+
     /**
      * Converts a colour from RGB to CIE XYZ coordinates
      * @param {number} red
@@ -93,14 +116,11 @@
      * @return {labcol.XYZ}
      */
     function RGBtoXYZ(red, green, blue) {
-        var rLinear = red / 255.0;
-        var gLinear = green / 255.0;
-        var bLinear = blue / 255.0;
 
         // convert to a sRGB form
-        r = (rLinear > 0.04045) ? Math.pow((rLinear + 0.055) / (1 + 0.055), 2.2) : (rLinear / 12.92);
-        g = (gLinear > 0.04045) ? Math.pow((gLinear + 0.055) / (1 + 0.055), 2.2) : (gLinear / 12.92);
-        b = (bLinear > 0.04045) ? Math.pow((bLinear + 0.055) / (1 + 0.055), 2.2) : (bLinear / 12.92);
+        var r = RGBtosRGB(+red / 255.0),
+            g = RGBtosRGB(+green / 255.0),
+            b = RGBtosRGB(+blue / 255.0);
 
         return {
             x: (r * 0.4124 + g * 0.3576 + b * 0.1805),
@@ -117,7 +137,11 @@
      * @return {number} ???
      */
     function Fxyz(t) {
-        return ((t > 0.008856) ? Math.pow(t, (1.0 / 3.0)) : (7.787 * t + 16.0 / 116.0));
+        if (t > 0.008856) {
+            return Math.pow(t, (1.0 / 3.0));
+        } else {
+            return 7.787 * t + 16.0 / 116.0;
+        }
     }
 
 
