@@ -82,8 +82,8 @@
         return {
             r: Clinear[0],
             g: Clinear[1],
-            b: Clinear[2]
-        }
+            b: Clinear[2],
+        };
     }
     labcol.prototype.XYZtoRGB = labcol.XYZtoRGB = XYZtoRGB;
 
@@ -123,10 +123,10 @@
             b = RGBtosRGB(+blue / 255.0);
 
         return {
-            x: (r * 0.4124 + g * 0.3576 + b * 0.1805),
-            y: (r * 0.2126 + g * 0.7152 + b * 0.0722),
-            z: (r * 0.0193 + g * 0.1192 + b * 0.9505)
-        }
+            x: r * 0.4124 + g * 0.3576 + b * 0.1805,
+            y: r * 0.2126 + g * 0.7152 + b * 0.0722,
+            z: r * 0.0193 + g * 0.1192 + b * 0.9505,
+        };
     }
     labcol.prototype.RGBtoXYZ = labcol.RGBtoXYZ = RGBtoXYZ;
 
@@ -138,7 +138,7 @@
      */
     function Fxyz(t) {
         if (t > 0.008856) {
-            return Math.pow(t, (1.0 / 3.0));
+            return Math.pow(t, 1.0 / 3.0);
         } else {
             return 7.787 * t + 16.0 / 116.0;
         }
