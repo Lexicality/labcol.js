@@ -4,12 +4,23 @@
     /** @constructor */
     function labcol() {}
 
-    /** @typedef {{r: number, g: number, b: number}} */
-    labcol.RGB;
-    /** @typedef {{l: number, a: number, b: number}} */
-    labcol.LAB;
-    /** @typedef {{x: number, y: number, z: number}} */
-    labcol.XYZ;
+    var l2xdelta = 6.0 / 29.0;
+
+    function _LabtoXYZ(a) {
+        if (a > l2xdelta) {
+            return a * a * a;
+        } else {
+            return (a - 16.0 / 116.0) * 3 * (l2xdelta * l2xdelta);
+        }
+    }
+
+    function _sRGBtoRGB(i) {
+        if (i <= 0.0031308) {
+            return 12.92 * i;
+        } else {
+            return (1 + 0.055) * Math.pow(i, (1.0 / 2.4)) - 0.055;
+        }
+    }
 
     /**
      * Converts a colour from the Lab colourspace to RGB
@@ -18,70 +29,30 @@
      * @param {number} b
      * @return {labcol.RGB}
      */
-    function LabtoRGB(l, a, b) {
-        return XYZtoRGB(LabtoXYZ(l, a, b));
-    }
-    labcol.prototype.LabtoRGB = labcol.LabtoRGB = LabtoRGB;
+    labcol.LabtoRGB = function(l, a, b) {
+        var x, y, z, r, g; // b is already defined!
 
-    var l2xdelta = 6.0 / 29.0;
+        y = (+l + 16) / 116.0;
+        x = y + (+a / 500.0);
+        z = y - (+b / 200.0);
 
-    function LabtoXYZ_(a) {
-        if (a > l2xdelta) {
-            return a * a * a;
-        } else {
-            return (a - 16.0 / 116.0) * 3 * (l2xdelta * l2xdelta);
-        }
-    }
-
-    /**
-     * Converts a colour from the Lab colourspace to CIE XYZ coordinates
-     * @param {number} l
-     * @param {number} a
-     * @param {number} b
-     * @return {labcol.XYZ}
-     */
-    function LabtoXYZ(l, a, b) {
-        var fy = (l + 16) / 116.0;
-        var fx = fy + (a / 500.0);
-        var fz = fy - (b / 200.0);
-        return {
-            x: 0.9505 * LabtoXYZ_(fx),
-            y: 1.0000 * LabtoXYZ_(fy),
-            z: 1.0890 * LabtoXYZ_(fz),
-        };
-    }
-    labcol.prototype.LabtoXYZ = labcol.LabtoXYZ = LabtoXYZ;
-
-    function sRGBtoRGB(i) {
-        if (i <= 0.0031308) {
-            return 12.92 * i;
-        } else {
-            return (1 + 0.055) * Math.pow(i, (1.0 / 2.4)) - 0.055;
-        }
-    }
+        x = 0.9505 * +_LabtoXYZ(x);
+        y = 1.0000 * +_LabtoXYZ(y);
+        z = 1.0890 * +_LabtoXYZ(z);
 
 
-    /**
-     * Converts a colour from CIE XYZ coordinates to RGB
-     * @param {labcol.XYZ} input
-     * @return {labcol.RGB}
-     */
-    function XYZtoRGB(input) {
-        var x = +input.x;
-        var y = +input.y;
-        var z = +input.z;
-
-        var r = +x * 3.2410 - y * 1.5374 - z * 0.4986, // red
-            g = -x * 0.9692 + y * 1.8760 - z * 0.0416, // green
-            b = +x * 0.0556 - y * 0.2040 + z * 1.0570; // blue
+        r = +x * 3.2410 - y * 1.5374 - z * 0.4986;
+        g = -x * 0.9692 + y * 1.8760 - z * 0.0416;
+        b = +x * 0.0556 - y * 0.2040 + z * 1.0570;
 
         return {
-            r: Math.floor(sRGBtoRGB(r) * 255),
-            g: Math.floor(sRGBtoRGB(g) * 255),
-            b: Math.floor(sRGBtoRGB(b) * 255),
+            r: Math.floor(_sRGBtoRGB(r) * 255),
+            g: Math.floor(_sRGBtoRGB(g) * 255),
+            b: Math.floor(_sRGBtoRGB(b) * 255),
         };
-    }
-    labcol.prototype.XYZtoRGB = labcol.XYZtoRGB = XYZtoRGB;
+    };
+    labcol.prototype.LabtoRGB = labcol.LabtoRGB;
+
 
     // RGB -> LAB
 
