@@ -6,6 +6,11 @@
 
     var l2xdelta = 6.0 / 29.0;
 
+    /**
+     * @private
+     * @param {number} a
+     * @return {number}
+     */
     function _LabtoXYZ(a) {
         if (a > l2xdelta) {
             return a * a * a;
@@ -14,6 +19,11 @@
         }
     }
 
+    /**
+     * @private
+     * @param {number} i
+     * @return {number}
+     */
     function _sRGBtoRGB(i) {
         if (i <= 0.0031308) {
             return 12.92 * i;
@@ -56,6 +66,11 @@
 
     // RGB -> LAB
 
+    /**
+     * @private
+     * @param {number} linear
+     * @return {number}
+     */
     function _RGBtosRGB(linear) {
         if (linear > 0.04045) {
             return Math.pow((linear + 0.055) / (1 + 0.055), 2.4);
