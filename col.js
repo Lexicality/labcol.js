@@ -102,7 +102,7 @@
 
     function RGBtosRGB(linear) {
         if (linear > 0.04045) {
-            return Math.pow((linear + 0.055) / (1 + 0.055), 2.2);
+            return Math.pow((linear + 0.055) / (1 + 0.055), 2.4);
         } else {
             return linear / 12.92;
         }
