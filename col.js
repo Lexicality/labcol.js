@@ -52,7 +52,7 @@
     }
     labcol.prototype.LabtoXYZ = labcol.LabtoXYZ = LabtoXYZ;
 
-    function XYZtoRGB_(i) {
+    function sRGBtoRGB(i) {
         if (i <= 0.0031308) {
             return 12.92 * i;
         } else {
@@ -77,7 +77,7 @@
         Clinear[2] = +x * 0.0556 - y * 0.2040 + z * 1.0570; // blue
 
         for (var i = 0; i < 3; i++) {
-            Clinear[i] = Math.floor(XYZtoRGB_(Clinear[i]) * 255);
+            Clinear[i] = Math.floor(sRGBtoRGB(Clinear[i]) * 255);
         }
         return {
             r: Clinear[0],
