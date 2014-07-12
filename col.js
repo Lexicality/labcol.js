@@ -23,11 +23,13 @@
     }
     labcol.prototype.LabtoRGB = labcol.LabtoRGB = LabtoRGB;
 
-    function LabtoXYZ_(a, delta) {
-        if (a > delta) {
+    var l2xdelta = 6.0 / 29.0;
+
+    function LabtoXYZ_(a) {
+        if (a > l2xdelta) {
             return a * a * a;
         } else {
-            return (a - 16.0 / 116.0) * 3 * (delta * delta);
+            return (a - 16.0 / 116.0) * 3 * (l2xdelta * l2xdelta);
         }
     }
 
@@ -39,15 +41,13 @@
      * @return {labcol.XYZ}
      */
     function LabtoXYZ(l, a, b) {
-        var delta = 6.0 / 29.0;
-
         var fy = (l + 16) / 116.0;
         var fx = fy + (a / 500.0);
         var fz = fy - (b / 200.0);
         return {
-            x: 0.9505 * LabtoXYZ_(fx, delta),
-            y: 1.0000 * LabtoXYZ_(fy, delta),
-            z: 1.0890 * LabtoXYZ_(fz, delta),
+            x: 0.9505 * LabtoXYZ_(fx),
+            y: 1.0000 * LabtoXYZ_(fy),
+            z: 1.0890 * LabtoXYZ_(fz),
         };
     }
     labcol.prototype.LabtoXYZ = labcol.LabtoXYZ = LabtoXYZ;
@@ -70,19 +70,15 @@
         var x = +input.x;
         var y = +input.y;
         var z = +input.z;
-        Clinear = [0, 0, 0];
 
-        Clinear[0] = +x * 3.2410 - y * 1.5374 - z * 0.4986; // red
-        Clinear[1] = -x * 0.9692 + y * 1.8760 - z * 0.0416; // green
-        Clinear[2] = +x * 0.0556 - y * 0.2040 + z * 1.0570; // blue
+        var r = +x * 3.2410 - y * 1.5374 - z * 0.4986, // red
+            g = -x * 0.9692 + y * 1.8760 - z * 0.0416, // green
+            b = +x * 0.0556 - y * 0.2040 + z * 1.0570; // blue
 
-        for (var i = 0; i < 3; i++) {
-            Clinear[i] = Math.floor(sRGBtoRGB(Clinear[i]) * 255);
-        }
         return {
-            r: Clinear[0],
-            g: Clinear[1],
-            b: Clinear[2],
+            r: Math.floor(sRGBtoRGB(r) * 255),
+            g: Math.floor(sRGBtoRGB(g) * 255),
+            b: Math.floor(sRGBtoRGB(b) * 255),
         };
     }
     labcol.prototype.XYZtoRGB = labcol.XYZtoRGB = XYZtoRGB;
@@ -151,20 +147,15 @@
      * @return {labcol.LAB}
      */
     function XYZtoLab(input) {
-        x = input.x;
-        y = input.y;
-        z = input.z;
+        var x = Fxyz(+input.x / 0.9505),
+            y = Fxyz(+input.y),
+            z = Fxyz(+input.z / 1.0890);
 
-        lab = {
-            l: 0,
-            a: 0,
-            b: 0
+        return {
+            l: 116.0 * y - 16,
+            a: 500.0 * (x - y),
+            b: 200.0 * (y - z),
         };
-        lab.l = 116.0 * Fxyz(y / 1.0) - 16;
-        lab.a = 500.0 * (Fxyz(x / 0.9505) - Fxyz(y / 1.0));
-        lab.b = 200.0 * (Fxyz(y / 1.0) - Fxyz(z / 1.0890));
-
-        return lab;
     }
     labcol.prototype.XYZtoLab = labcol.XYZtoLab = XYZtoLab;
 
