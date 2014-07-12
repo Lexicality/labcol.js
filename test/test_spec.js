@@ -1,5 +1,4 @@
-var fs = require('fs');
-eval(fs.readFileSync('../col.js') + '');
+var labcol = require('../col');
 
 var x = new labcol();
 
