@@ -3,34 +3,27 @@ var labcol = require('../col'),
 
 var expect = chai.expect;
 
+function colourCompare(r, g, b) {
+  lab = labcol.RGBtoLab(r, g, b);
+  rgb = labcol.LabtoRGB(lab.l, lab.a, lab.b);
+
+  expect(rgb).to.deep.equal({
+    r: r,
+    g: g,
+    b: b
+  });
+}
+
 describe("col", function() {
   describe("basic", function() {
     it("should not mutate red", function() {
-      var lab = labcol.RGBtoLab(255, 0, 0);
-      var rgb = labcol.LabtoRGB(lab.l, lab.a, lab.b);
-      expect(rgb).to.deep.equal({
-        r: 255,
-        g: 0,
-        b: 0
-      });
+      colourCompare(255, 0, 0);
     });
     it("should not mutate green", function() {
-      var lab = labcol.RGBtoLab(0, 255, 0);
-      var rgb = labcol.LabtoRGB(lab.l, lab.a, lab.b);
-      expect(rgb).to.deep.equal({
-        r: 0,
-        g: 255,
-        b: 0
-      });
+      colourCompare(0, 255, 0);
     });
     it("should not mutate green", function() {
-      var lab = labcol.RGBtoLab(0, 0, 255);
-      var rgb = labcol.LabtoRGB(lab.l, lab.a, lab.b);
-      expect(rgb).to.deep.equal({
-        r: 0,
-        g: 0,
-        b: 255
-      });
+      colourCompare(0, 0, 255);
     });
   });
   describe("comprehensive", function() {
@@ -40,14 +33,7 @@ describe("col", function() {
       for (r = 0; r < 255; r += step) {
         for (g = 0; g < 255; g += step) {
           for (b = 0; b < 255; b += step) {
-            lab = labcol.RGBtoLab(r, g, b);
-            rgb = labcol.LabtoRGB(lab.l, lab.a, lab.b);
-
-            expect(rgb).to.deep.equal({
-              r: r,
-              g: g,
-              b: b
-            });
+            colourCompare(r, g, b);
           }
         }
       }
