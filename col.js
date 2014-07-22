@@ -31,6 +31,7 @@
             return (1 + 0.055) * Math.pow(i, (1.0 / 2.4)) - 0.055;
         }
     }
+    labcol._sRGBtoRGB = _sRGBtoRGB;
 
     /**
      * Converts a colour from the Lab colourspace to RGB
@@ -78,6 +79,7 @@
             return linear / 12.92;
         }
     }
+    labcol._RGBtosRGB = _RGBtosRGB;
 
     /**
      * @private

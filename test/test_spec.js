@@ -14,6 +14,34 @@ function colourCompare(r, g, b) {
   });
 }
 
+describe("srgb", function() {
+  it("should not mutate values", function() {
+    for (var i = 0; i <= 255; i++) {
+      var srgb = labcol._RGBtosRGB(i / 255);
+      var rgb = labcol._sRGBtoRGB(srgb);
+      expect(rgb * 255).to.be.closeTo(i, 0.01);
+    }
+  });
+  it.skip("should match known conversions", function() {
+    function srgb2rgb(srgb) {
+      return {
+        r: labcol._sRGBtoRGB(srgb.r),
+        g: labcol._sRGBtoRGB(srgb.g),
+        b: labcol._sRGBtoRGB(srgb.b),
+      };
+    }
+
+    function rgb2srgb(rgb) {
+      return {
+        r: labcol._RGBtosRGB(rgb.r),
+        g: labcol._RGBtosRGB(rgb.g),
+        b: labcol._RGBtosRGB(rgb.b),
+      };
+    }
+    // TODO: Find out some known conversions
+  });
+});
+
 describe("col", function() {
   describe("basic", function() {
     it("should not mutate red", function() {
