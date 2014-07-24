@@ -52,14 +52,14 @@
         z = 1.0890 * +_LabtoXYZ(z);
 
 
-        r = +x * 3.2410 - y * 1.5374 - z * 0.4986;
-        g = -x * 0.9692 + y * 1.8760 - z * 0.0416;
-        b = +x * 0.0556 - y * 0.2040 + z * 1.0570;
+        r = x * +3.2404542 + y * -1.5371385 + z * -0.4985314;
+        g = x * -0.9692660 + y * +1.8760108 + z * +0.0415560;
+        b = x * +0.0556434 + y * -0.2040259 + z * +1.0572252;
 
         return {
-            r: Math.floor(_sRGBtoRGB(r) * 255),
-            g: Math.floor(_sRGBtoRGB(g) * 255),
-            b: Math.floor(_sRGBtoRGB(b) * 255)
+            r: Math.abs(Math.round(_sRGBtoRGB(r) * 255)),
+            g: Math.abs(Math.round(_sRGBtoRGB(g) * 255)),
+            b: Math.abs(Math.round(_sRGBtoRGB(b) * 255))
         };
     };
     labcol.prototype.LabtoRGB = labcol.LabtoRGB;
@@ -109,9 +109,9 @@
         g = +_RGBtosRGB(+g / 255.0);
         b = +_RGBtosRGB(+b / 255.0);
 
-        x = r * 0.4124 + g * 0.3576 + b * 0.1805;
-        y = r * 0.2126 + g * 0.7152 + b * 0.0722;
-        z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+        x = r * 0.4124564 + g * 0.3575761 + b * 0.1804375;
+        y = r * 0.2126729 + g * 0.7151522 + b * 0.0721750;
+        z = r * 0.0193339 + g * 0.1191920 + b * 0.9503041;
 
         x = +fxyz(x / 0.9505);
         y = +fxyz(y);
