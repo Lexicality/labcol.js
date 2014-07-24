@@ -1,80 +1,138 @@
-function labcol() {
-    this.LabtoRGB = function(l, a, b) {
-        return this.XYZtoRGB(this.LabtoXYZ(l, a, b).x, this.LabtoXYZ(l, a, b).y, this.LabtoXYZ(l, a, b).z);
-    };
+(function(root) {
+    'use strict';
 
-    this.LabtoXYZ = function(l, a, b) {
-        var delta = 6.0 / 29.0;
+    /** @constructor */
+    function labcol() {}
 
-        var fy = (l + 16) / 116.0;
-        var fx = fy + (a / 500.0);
-        var fz = fy - (b / 200.0);
-        return {
-            x: (fx > delta) ? 0.9505 * (fx * fx * fx) : (fx - 16.0 / 116.0) * 3 * (delta * delta) * 0.9505,
-            y: (fy > delta) ? 1 * (fy * fy * fy) : (fy - 16.0 / 116.0) * 3 * (delta * delta) * 1,
-            z: (fz > delta) ? 1.0890 * (fz * fz * fz) : (fz - 16.0 / 116.0) * 3 * (delta * delta) * 1.0890
-        };
-    };
+    var l2xdelta = 6.0 / 29.0;
 
-    this.XYZtoRGB = function(x, y, z) {
-        Clinear = [0, 0, 0];
-
-        Clinear[0] = x * 3.2410 - y * 1.5374 - z * 0.4986; // red
-        Clinear[1] = -x * 0.9692 + y * 1.8760 - z * 0.0416; // green
-        Clinear[2] = x * 0.0556 - y * 0.2040 + z * 1.0570; // blue
-
-        for (var i = 0; i < 3; i++) {
-            Clinear[i] = Math.floor(((Clinear[i] <= 0.0031308) ? 12.92 * Clinear[i] : (
-                1 + 0.055) * Math.pow(Clinear[i], (1.0 / 2.4)) - 0.055) * 255);
+    /**
+     * @private
+     * @param {number} a
+     * @return {number}
+     */
+    function _LabtoXYZ(a) {
+        if (a > l2xdelta) {
+            return a * a * a;
+        } else {
+            return (a - 16.0 / 116.0) * 3 * (l2xdelta * l2xdelta);
         }
-        return {
-            r: Clinear[0],
-            g: Clinear[1],
-            b: Clinear[2]
-        }
-    };
-
-    this.RGBtoLab = function(r, g, b) {
-        return this.XYZtoLab(this.RGBtoXYZ(r, g, b));
     }
 
-    this.RGBtoXYZ = function(red, green, blue) {
-        var rLinear = red / 255.0;
-        var gLinear = green / 255.0;
-        var bLinear = blue / 255.0;
+    /**
+     * @private
+     * @param {number} i
+     * @return {number}
+     */
+    function _sRGBtoRGB(i) {
+        if (i <= 0.0031308) {
+            return 12.92 * i;
+        } else {
+            return (1 + 0.055) * Math.pow(i, (1.0 / 2.4)) - 0.055;
+        }
+    }
+    labcol._sRGBtoRGB = _sRGBtoRGB;
+
+    /**
+     * Converts a colour from the Lab colourspace to RGB
+     * @param {number} l
+     * @param {number} a
+     * @param {number} b
+     * @return {labcol.RGB}
+     */
+    labcol.LabtoRGB = function(l, a, b) {
+        var x, y, z, r, g; // b is already defined!
+
+        y = (+l + 16) / 116.0;
+        x = y + (+a / 500.0);
+        z = y - (+b / 200.0);
+
+        x = 0.9505 * +_LabtoXYZ(x);
+        y = 1.0000 * +_LabtoXYZ(y);
+        z = 1.0890 * +_LabtoXYZ(z);
+
+
+        r = +x * 3.2410 - y * 1.5374 - z * 0.4986;
+        g = -x * 0.9692 + y * 1.8760 - z * 0.0416;
+        b = +x * 0.0556 - y * 0.2040 + z * 1.0570;
+
+        return {
+            r: Math.floor(_sRGBtoRGB(r) * 255),
+            g: Math.floor(_sRGBtoRGB(g) * 255),
+            b: Math.floor(_sRGBtoRGB(b) * 255)
+        };
+    };
+    labcol.prototype.LabtoRGB = labcol.LabtoRGB;
+
+
+    // RGB -> LAB
+
+    /**
+     * @private
+     * @param {number} linear
+     * @return {number}
+     */
+    function _RGBtosRGB(linear) {
+        if (linear > 0.04045) {
+            return Math.pow((linear + 0.055) / (1 + 0.055), 2.4);
+        } else {
+            return linear / 12.92;
+        }
+    }
+    labcol._RGBtosRGB = _RGBtosRGB;
+
+    /**
+     * @private
+     * @param {number} t ??
+     * @return {number} ???
+     */
+    function fxyz(t) {
+        if (t > 0.008856) {
+            return Math.pow(t, 1.0 / 3.0);
+        } else {
+            return 7.787 * t + 16.0 / 116.0;
+        }
+    }
+
+    /**
+     * Converts a colour from RGB to the Lab colourspace
+     * @param {number} r
+     * @param {number} g
+     * @param {number} b
+     * @return {labcol.LAB}
+     */
+    labcol.RGBtoLab = function(r, g, b) {
+        var x, y, z;
 
         // convert to a sRGB form
-        r = (rLinear > 0.04045) ? Math.pow((rLinear + 0.055) / (1 + 0.055), 2.2) : (rLinear / 12.92);
-        g = (gLinear > 0.04045) ? Math.pow((gLinear + 0.055) / (1 + 0.055), 2.2) : (gLinear / 12.92);
-        b = (bLinear > 0.04045) ? Math.pow((bLinear + 0.055) / (1 + 0.055), 2.2) : (bLinear / 12.92);
+        r = +_RGBtosRGB(+r / 255.0);
+        g = +_RGBtosRGB(+g / 255.0);
+        b = +_RGBtosRGB(+b / 255.0);
+
+        x = r * 0.4124 + g * 0.3576 + b * 0.1805;
+        y = r * 0.2126 + g * 0.7152 + b * 0.0722;
+        z = r * 0.0193 + g * 0.1192 + b * 0.9505;
+
+        x = +fxyz(x / 0.9505);
+        y = +fxyz(y);
+        z = +fxyz(z / 1.0890);
 
         return {
-            x: (r * 0.4124 + g * 0.3576 + b * 0.1805),
-            y: (r * 0.2126 + g * 0.7152 + b * 0.0722),
-            z: (r * 0.0193 + g * 0.1192 + b * 0.9505)
-        }
-    }
-
-    this.Fxyz = function(t) {
-        return ((t > 0.008856) ? Math.pow(t, (1.0 / 3.0)) : (7.787 * t + 16.0 / 116.0));
-    }
-
-    this.XYZtoLab = function(input) {
-        x = input.x;
-        y = input.y;
-        z = input.z;
-
-        lab = {
-            l: 0,
-            a: 0,
-            b: 0
+            l: 116.0 * y - 16,
+            a: 500.0 * (x - y),
+            b: 200.0 * (y - z)
         };
-        lab.l = 116.0 * this.Fxyz(y / 1.0) - 16;
-        lab.a = 500.0 * (this.Fxyz(x / 0.9505) - this.Fxyz(y / 1.0));
-        lab.b = 200.0 * (this.Fxyz(y / 1.0) - this.Fxyz(z / 1.0890));
+    };
+    labcol.prototype.RGBtoLab = labcol.RGBtoLab;
 
-        return lab;
+    // Lib Output
+    if (typeof module !== 'undefined') {
+        module['exports'] = labcol;
+    } else if (typeof define === 'function' && define['amd']) {
+        define(function() {
+            return labcol;
+        });
+    } else {
+        root['labcol'] = labcol;
     }
-
-    var that = this;
-}
+})(this);
